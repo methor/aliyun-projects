@@ -5,7 +5,7 @@
 - enter the password
 
 ## Login with Hostnames
-Adding the content of [aliyun-hosts](https://bitbucket.org/hengxin/personal-info/src/cce61a4ff163c1f87e5abc4d164622df20690e50/accounts/aliyun-hosts?at=master&fileviewer=file-view-default) to your hosts file (for example, `/etc/hosts` in Ubuntu), then you can login via `ssh root@<hostname>` (with password).
+Adding the content of [aliyun-hosts](https://github.com/hengxin/aliyun-projects/blob/master/aliyun-ecs/aliyun-hosts) to your hosts file (for example, `/etc/hosts` in Ubuntu), then you can login via `ssh root@<hostname>` (with password).
 
 ## Login via SSH Keys
 *Note:* The following documents the way how [the article: How To Set Up SSH Keys](https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2) sets up ssh keys. 
