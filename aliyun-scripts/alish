@@ -1,0 +1,21 @@
+#!/bin/bash
+echo There are $# parameters supplied.
+
+hosts="nc1 nc2 nc3 sc1 sc2 sc3 ec1 ec2 ec3"
+
+if [ $# = 1 ]
+then 
+    echo "Execute '$1' in all remote hosts:"
+    for host in $hosts
+    do
+    	echo "$host:"
+	ssh root@$host $1
+    done
+else
+    echo "Execute '$1' locally, feed its output to '$2', and execute '$2' in all remote hosts:"
+    for host in $hosts
+    do
+    	echo "$host:"
+	$1 | ssh root@$host $2
+    done
+fi
