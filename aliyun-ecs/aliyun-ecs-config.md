@@ -6,7 +6,7 @@
 - configure `/etc/hostname` 
 - configure `/etc/hosts`
 
-### Appending [`aliyun-host`]() to `/etc/hosts`
+### Appending [`aliyun-host`](https://github.com/hengxin/aliyun-projects/blob/master/aliyun-ecs/aliyun-hosts) to `/etc/hosts`
 
 Using the [`alish`](https://github.com/hengxin/aliyun-projects/blob/master/aliyun-scripts/alish) script: `alish -l='cat aliyun-host' -r='cat >> /etc/hosts'`
 
