@@ -1,21 +1,60 @@
 #!/bin/bash
-echo There are $# parameters supplied.
 
+# This script executes executes the 'local cmd' at the local host, and then executes the 'remote cmd' at remote 'hosts' with the output of 'local cmd' as input.
+# Parsing arguments using [jehiah/simple_args_parsing.sh](https://gist.github.com/jehiah/855086)
+
+lcmd=":" 
+rcmd=":"
 hosts="nc1 nc2 nc3 sc1 sc2 sc3 ec1 ec2 ec3"
 
-if [ $# = 1 ]
-then 
-    echo "Execute '$1' in all remote hosts:"
-    for host in $hosts
-    do
-    	echo "$host:"
-	ssh root@$host $1
-    done
-else
-    echo "Execute '$1' locally, feed its output to '$2', and execute '$2' in all remote hosts:"
-    for host in $hosts
-    do
-    	echo "$host:"
-	$1 | ssh root@$host $2
-    done
-fi
+function usage() {
+    echo "alish -l='local cmd' -r='remote cmd' -t='hosts'"
+    echo ""
+    echo "This script executes the 'local cmd' at the local host, and then executes the 'remote cmd' at remote 'hosts' with the output of 'local cmd' as input."
+    echo ""
+    echo "-h --help"
+    echo "-l --local-cmd. Default: ':' meaning noop."
+    echo "-r --remote-cmd. Default: ':' meaning noop."
+    echo "-t --hosts. Default: 'nc1 nc2 nc3 sc1 sc2 sc3 ec1 ec2 ec3'."
+    echo ""
+}
+
+while [ "$1" != "" ]; do
+    PARAM=`echo $1 | awk -F= '{print $1}'`
+    VALUE=`echo $1 | awk -F= '{print $2}'`
+    case $PARAM in
+        -h | --help)
+            usage
+            exit
+            ;;
+        -l | --local-cmd)
+            lcmd=$VALUE
+            ;;
+        -r | --remote-cmd)
+            rcmd=$VALUE
+            ;;
+	-t | --hosts)
+	    hosts=$VALUE
+	    ;;
+        *)
+            echo "ERROR: unknown parameter \"$PARAM\""
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+echo "local cmd is '$lcmd'.";
+echo "remote cmd is '$rcmd'.";
+echo "hosts is '$hosts'."
+
+echo ""
+echo "This script executes '$lcmd' at the local host, and then executes '$rcmd' at remote hosts '$hosts' with the output of '$lcmd' as input."
+echo ""
+
+for host in $hosts
+do
+    echo "$host:"
+    $lcmd | ssh root@$host $rcmd
+done
