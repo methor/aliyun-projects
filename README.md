@@ -1,2 +1,2 @@
 # aliyun-projects
-Projects on aliyun.
+Projects on Aliyun ECS (Elastic Compute Service).
