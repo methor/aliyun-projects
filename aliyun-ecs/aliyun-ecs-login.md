@@ -4,6 +4,11 @@
 - `ssh root@<IP>`
 - enter the password
 
+### Console at Aliyun Service
+- password for console: 861102
+- user: root
+- then enter the password for ecs
+
 ## Login with Hostnames
 Adding the content of [aliyun-hosts](https://github.com/hengxin/aliyun-projects/blob/master/aliyun-ecs/aliyun-hosts) to your hosts file (for example, `/etc/hosts` in Ubuntu), then you can login via `ssh root@<hostname>` (with password).
 
