@@ -1,0 +1,35 @@
+#!/bin/bash
+
+hosts="nc1 nc2 nc3 sc1 sc2 sc3 ec1 ec2 ec3"
+
+PINGDIR="aliping-logs"
+
+echo -e "\n The present working directory is: $PWD.\n 
+This script will create a subdirectory called $PINGDIR and store ping data into it.\n
+Pause 10 second now.\n
+Press Ctrl+C to break."
+
+sleep 10s
+
+if [ ! -d "$PINGDIR" ]; then
+	mkdir $PINGDIR
+fi
+
+LANG=en_us_8859_1
+
+for host in $hosts; do
+	if [ $host != $HOSTNAME ]; then
+		log="$PINGDIR/$host-ping-log"
+		if [ ! -f $log ]; then  # create log file if not exists
+			touch $log
+		fi
+
+		if [ -s $log ]; then
+			echo -en '\n'  >> $log  # writing empty line
+		fi
+		date +"%A, %B %d %Y" >> $log  # writing date
+		echo -en '\n'  >> $log  # writing empty line
+
+		ping $host >> $log 2>&1 &
+	fi
+done 

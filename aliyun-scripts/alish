@@ -56,5 +56,5 @@ echo ""
 for host in $hosts
 do
     echo "$host:"
-    $lcmd | ssh root@$host $rcmd
+    $lcmd | ssh root@$host $rcmd &
 done
