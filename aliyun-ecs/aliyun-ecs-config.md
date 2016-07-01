@@ -27,4 +27,4 @@ Using the [`alish`](https://github.com/hengxin/aliyun-projects/blob/master/aliyu
 ### Cassandra in Docker
 - `docker pull cassandra`: Install Cassandra with docker locally
 - `alish -r='docker pull cassandra'`: Install Cassandra with docker on all ECSes remotely
-- [ ] already on `nc1 ec2 sc2`
+- [x] already on `nc1 nc2 nc3 ec1 ec2 ec3 sc1 sc2 sc3`

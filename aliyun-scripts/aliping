@@ -24,7 +24,7 @@ for host in $hosts; do
 			touch $log
 		fi
 
-		if [ -s $log ]; then
+		if [ ! -s $log ]; then
 			echo -en '\n'  >> $log  # writing empty line
 		fi
 		date +"%A, %B %d %Y" >> $log  # writing date
