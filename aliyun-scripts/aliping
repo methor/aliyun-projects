@@ -1,6 +1,47 @@
 #!/bin/bash
 
-hosts="nc1 nc2 nc3 sc1 sc2 sc3 ec1 ec2 ec3"
+function usage() {
+    echo "aliping -i='interval' -d='duration' -t='hosts'"
+    echo ""
+    echo "This script pings 'hosts' every 'interval' seconds and lasts for 'duration' seconds."
+    echo ""
+    echo "-h --help"
+    echo "-i --interval. Default: '1'."
+    echo "-d --duration. Default: '3600 * 24 * 7', i.e., a weak."
+    echo "-t --hosts. Default: 'nc1 nc2 nc3 sc1 sc2 sc3 ec1 ec2 ec3'."
+    echo ""
+}
+
+interval=1	# ping once a second
+duration=$[ 3600 * 24 * 7 ]	# last for a week
+hosts="nc1 nc2 nc3 sc1 sc2 sc3 ec1 ec2 ec3"	# run on all 9 ECSes
+
+# parse the arguments: -h (--help), -i (--interval), -d (--duration), -t (--hosts)
+while [ "$1" != "" ]; do
+    PARAM=`echo $1 | awk -F= '{print $1}'`
+    VALUE=`echo $1 | awk -F= '{print $2}'`
+    case $PARAM in
+        -h | --help)
+            usage
+            exit
+            ;;
+        -i | --interval)
+            interval=$VALUE
+            ;;
+        -d | --duration)
+            duration=$VALUE
+            ;;
+	-t | --hosts)
+	    hosts=$VALUE
+	    ;;
+        *)
+            echo "ERROR: unknown parameter \"$PARAM\""
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
 
 PINGDIR="aliping-logs"
 

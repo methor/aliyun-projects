@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# kill all ping processes gently
+kill -SIGINT $(pidof ping)

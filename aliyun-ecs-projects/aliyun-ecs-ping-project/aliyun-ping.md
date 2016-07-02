@@ -3,9 +3,34 @@
 ## Goal
 We aim to collect raw data about network delays among Aliyun ECSes intra-/inter-districts.
 
-## Setup
+## Description
 We conduct the experiment on [9 Aliyun ECSes](https://github.com/hengxin/aliyun-projects/blob/master/aliyun-ecs/aliyun-hosts) 
 by letting them keep [*ping*](https://en.wikipedia.org/wiki/Ping_(networking_utility)) each other, once per second.
 
-## Run
+## Setup
 
+### Copy [`aliping`](https://github.com/hengxin/aliyun-projects/blob/master/aliyun-scripts/aliping) to remote hosts 
+1. `alish -l='/usr/local/bin/aliping' -r='/usr/local/bin/aliping'`
+2. `alish -r='chmod u+x /usr/local/bin/aliping'`
+
+## Run
+`sudo aliping`
+
+## Stop
+
+### Individually
+Copy [aliping-int]() to remote hosts
+1. `alish -l='/usr/local/bin/aliping-int' -r='/usr/local/bin/aliping-int'`
+2. `alish -r='chmod u+x /usr/local/bin/aliping-int'`
+
+Run `sudo aliping-int`.
+
+### In batch
+`alish -r='aliping-int'`
+
+### Collect
+
+
+## Cleanup
+1. Remove logs
+ - `alish -r='rm -rf /usr/local/bin/aliping-logs/'`
