@@ -10,16 +10,21 @@ by letting them keep [*ping*](https://en.wikipedia.org/wiki/Ping_(networking_uti
 ## Setup
 
 ### Copy [`aliping`](https://github.com/hengxin/aliyun-projects/blob/master/aliyun-scripts/aliping) to remote hosts 
-1. `alish -l='/usr/local/bin/aliping' -r='/usr/local/bin/aliping'`
+1. `alish -l='cat /usr/local/bin/aliping' -r='cat > /usr/local/bin/aliping'`
 2. `alish -r='chmod u+x /usr/local/bin/aliping'`
 
 ## Run
-`sudo aliping`
+
+### Individually
+- `aliping`: ping all other ECS hosts
+
+### In batch
+- `alish -r='aliping'`
 
 ## Stop
 
 ### Individually
-Copy [aliping-int]() to remote hosts
+Copy [aliping-int](https://github.com/hengxin/aliyun-projects/blob/master/aliyun-scripts/aliping-int) to remote hosts
 1. `alish -l='/usr/local/bin/aliping-int' -r='/usr/local/bin/aliping-int'`
 2. `alish -r='chmod u+x /usr/local/bin/aliping-int'`
 
