@@ -31,12 +31,12 @@ while [ "$1" != "" ]; do
         -l | --local-cmd)
             lcmd=$VALUE
             ;;
-        -r | --remote-cmd)
+		-r | --remote-cmd)
             rcmd=$VALUE
             ;;
-	-t | --hosts)
-	    hosts=$VALUE
-	    ;;
+		-t | --hosts)
+			hosts=$VALUE
+			;;
         *)
             echo "ERROR: unknown parameter \"$PARAM\""
             usage

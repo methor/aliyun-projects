@@ -21,6 +21,11 @@ by letting them keep [*ping*](https://en.wikipedia.org/wiki/Ping_(networking_uti
 ### In batch
 - `alish -r='aliping'`
 
+***Note:*** The experiment starts at 16:00 on Sunday, July 03, 2016.
+
+## Setup & Run: Allinone
+`alish -l='cat /usr/local/bin/aliping' -r='cat > /usr/local/bin/aliping && chmod u+x /usr/local/bin/aliping && aliping'`
+
 ## Stop
 
 ### Individually
