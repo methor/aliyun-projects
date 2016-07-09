@@ -5,7 +5,7 @@
 - enter the password
 
 ### Console at Aliyun Service
-- password for console: 861102
+- password for console: `******`
 - user: root
 - then enter the password for ecs
 
