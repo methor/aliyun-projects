@@ -56,5 +56,5 @@ echo ""
 
 for host in $hosts; do
     echo "$host:"
-    $lcmd | ssh root@$host $rcmd &
+    $lcmd | ssh -o StrictHostKeyChecking=no root@$host $rcmd &
 done
