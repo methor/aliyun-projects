@@ -43,8 +43,8 @@ function getIP() {
     echo $(getent hosts $h | awk '{print $1}')
 }
 
-hosts="nc1 nc2 nc3 sc1 sc2 sc3 ec1 ec2 ec3"	# run on all 9 ECSes
-seeds="nc1 sc1 ec1"  # seeds in different regions
+hosts=("nc1" "nc2" "nc3" "sc1" "sc2" "sc3" "ec1" "ec2" "ec3")	# run on all 9 ECSes
+seeds=("nc1" "sc1" "ec1")  # seeds in different regions
 port="7000"  # port for gossip
 tag="latest"  # cassandra:latest
 
@@ -88,7 +88,7 @@ fi
 
 # first starting the seeds in 'seeds'
 
-for seed in $seeds; do
+for seed in ${seeds[@]}; do
     name=$(naming $seed)
     ip=$(getIP $seed)
 
@@ -100,7 +100,7 @@ done
 # then starting the others in 'hosts' (excluding those also in 'seeds')
 
 
-for host in $hosts; do
+for host in ${hosts[@]}; do
     name=$(naming $host)
     ip=$(getIP $host)
 
