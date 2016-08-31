@@ -18,43 +18,61 @@ function usage() {
     echo "-t --hosts. Default: 'nc1 nc2 nc3 sc1 sc2 sc3 ec1 ec2 ec3'."
     echo ""
 }
+python alish-parseargs.py "$@"
+
+declare -i LINE
+LINE=1
+while IFS='' read -r line || [[ -n "$line" ]]; do
+    echo $line
+    if [ "$line" != "\n" ]; then
+        if [ $LINE -eq 1 ]; then
+            lcmd=$line
+        elif [ $LINE -eq 2 ]; then
+            rcmd=$line
+        elif [ $LINE -eq 3 ]; then
+            hosts=$line
+        fi
+    fi
+    LINE=$LINE+1
+done < tmpfile
+rm tmpfile
 
 # parse the arguments: -h, -l, -r, -t
-while [ "$1" != "" ]; do
-    PARAM=`echo $1 | awk -F= '{print $1}'`
-    VALUE=`echo $1 | awk -F= '{print $2}'`
-    case $PARAM in
-        -h | --help)
-            usage
-            exit
-            ;;
-        -l | --local-cmd)
-            lcmd=$VALUE
-            ;;
-		-r | --remote-cmd)
-            rcmd=$VALUE
-            ;;
-		-t | --hosts)
-			hosts=$VALUE
-			;;
-        *)
-            echo "ERROR: unknown parameter \"$PARAM\""
-            usage
-            exit 1
-            ;;
-    esac
-    shift
-done
+#while [ "$1" != "" ]; do
+    #PARAM=`echo $1 | awk -F= '{print $1}'`
+    #VALUE=`echo $1 | awk -F= '{print $2}'`
+    #case $PARAM in
+        #-h | --help)
+            #usage
+            #exit
+            #;;
+        #-l | --local-cmd)
+            #lcmd=$VALUE
+            #;;
+		#-r | --remote-cmd)
+            #rcmd=$VALUE
+            #;;
+		#-t | --hosts)
+			#hosts=$VALUE
+			#;;
+        #*)
+            #echo "ERROR: unknown parameter \"$PARAM\""
+            #usage
+            #exit 1
+            #;;
+    #esac
+    #shift
+#done
 
 echo "local cmd is '$lcmd'.";
 echo "remote cmd is '$rcmd'.";
 echo "hosts is '$hosts'."
 
-echo ""
-echo "This script executes '$lcmd' at the local host, and then executes '$rcmd' at remote hosts '$hosts' with the output of '$lcmd' as input."
-echo ""
+#echo ""
+#echo "This script executes '$lcmd' at the local host, and then executes '$rcmd' at remote hosts '$hosts' with the output of '$lcmd' as input."
+#echo ""
 
-for host in $hosts; do
-    echo "$host:"
-    $lcmd | ssh -o StrictHostKeyChecking=no root@$host $rcmd &
-done
+#for host in $hosts; do
+    #echo "$host:"
+    #$lcmd | ssh -o StrictHostKeyChecking=no root@$host $rcmd &
+#done

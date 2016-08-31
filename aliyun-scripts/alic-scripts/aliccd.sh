@@ -94,7 +94,7 @@ for seed in $seeds; do
 
 	run_cmd="docker run --name $name -d -e CASSANDRA_BROADCAST_ADDRESS=$ip -p $port:$port cassandra:$tag"
 	rm_cmd="docker rm -f $name"
-    alish -r="$run_cmd || ($rm_cmd && $run_cmd)" -t="$ip"
+    alish -r "$run_cmd || ($rm_cmd && $run_cmd)" -t "$ip"
 done
 
 # then starting the others in 'hosts' (excluding those also in 'seeds')
@@ -109,7 +109,7 @@ for host in $hosts; do
         seed_ip=$(getIP ${seeds[$RANDOM % ${#seeds[@]}] })
 		run_cmd="docker run --name $name -d -e CASSANDRA_BROADCAST_ADDRESS=$ip -p $port:$port -e CASSANDRA_SEEDS=$seed_ip cassandra:$tag"
 		rm_cmd="docker rm -f $name"
-		alish -r="$run_cmd || ($rm_cmd && $run_cmd)" -t="$ip"
+		alish -r "$run_cmd || ($rm_cmd && $run_cmd)" -t "$ip"
 	fi
 done
 
