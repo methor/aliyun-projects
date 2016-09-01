@@ -64,15 +64,15 @@ rm tmpfile
     #shift
 #done
 
-echo "local cmd is '$lcmd'.";
-echo "remote cmd is '$rcmd'.";
-echo "hosts is '$hosts'."
+#echo "local cmd is '$lcmd'.";
+#echo "remote cmd is '$rcmd'.";
+#echo "hosts is '$hosts'."
 
 #echo ""
 #echo "This script executes '$lcmd' at the local host, and then executes '$rcmd' at remote hosts '$hosts' with the output of '$lcmd' as input."
 #echo ""
 
-#for host in $hosts; do
-    #echo "$host:"
-    #$lcmd | ssh -o StrictHostKeyChecking=no root@$host $rcmd &
-#done
+for host in $hosts; do
+    echo "$host:"
+    $lcmd | ssh -o StrictHostKeyChecking=no root@$host $rcmd &
+done

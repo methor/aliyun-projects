@@ -1,4 +1,4 @@
-#!/bin/bash - 
+#!/bin/bash
 #===============================================================================
 #
 #          FILE: aliccd.sh
@@ -17,7 +17,7 @@
 #      REVISION:  ---
 #===============================================================================
 
-set -o nounset                              # Treat unset variables as an error
+#set -o nounset                              # Treat unset variables as an error
 
 function usage() {
     echo "aliccd -h='hosts' -s='seeds' -p='port' -t='tag' -n='name'"
@@ -51,9 +51,17 @@ tag="latest"  # cassandra:latest
 # parse the arguments: --help, -h (--hosts), -s (--seeds), -t (--tag)
 echo $#
 if [ 0 -ne $# ]; then
-    while [ "$1" != "" ]; do
+    until  [ -z "$1" ]
+    do
         PARAM=`echo $1 | awk -F= '{print $1}'`
         VALUE=`echo $1 | awk -F= '{print $2}'`
+
+        echo $PARAM
+
+        VALUE_ARR=()
+        for item in "$VALUE"; do
+            VALUE_ARR+=("$item")
+        done
 
         echo "while"
 
@@ -63,16 +71,17 @@ if [ 0 -ne $# ]; then
                 exit
                 ;;
             -h | --hosts)
-                hosts=$VALUE
+                hosts=( ${VALUE_ARR[@]} )
+                echo ${hosts[@]}
                 ;;
             -s | --seeds)
-                seeds=$VALUE
+                seeds=( ${VALUE_ARR[@]} )
                 ;;
             -p |--port)
-                port=$VALUE
+                port=( ${VALUE_ARR[@]} )
                 ;;
             -t | --tag)
-                tag=$VALUE
+                tag=( ${VALUE_ARR[@]} )
                 ;;
             *)
                 echo "ERROR: unknown parameter \"$PARAM\""
@@ -82,9 +91,10 @@ if [ 0 -ne $# ]; then
         esac
         shift
     done
-else
-    echo zero zero
 fi
+
+echo ${seeds[@]}
+echo ${hosts[@]}
 
 # first starting the seeds in 'seeds'
 
