@@ -3,76 +3,102 @@
 # This script executes executes the 'local cmd' at the local host, and then executes the 'remote cmd' at remote 'hosts' with the output of 'local cmd' as input.
 # Parsing arguments using [jehiah/simple_args_parsing.sh](https://gist.github.com/jehiah/855086)
 
-lcmd=":" 
-rcmd=":"
+lcmd="" 
+rcmd=""
 hosts="nc1 nc2 nc3 sc1 sc2 sc3 ec1 ec2 ec3"
 
 function usage() {
-    echo "alish -l='local cmd' -r='remote cmd' -t='hosts'"
-    echo ""
-    echo "This script executes the 'local cmd' at the local host, and then executes the 'remote cmd' at remote 'hosts' with the output of 'local cmd' as input."
-    echo ""
-    echo "-h --help"
-    echo "-l --local-cmd. Default: ':' meaning noop."
-    echo "-r --remote-cmd. Default: ':' meaning noop."
-    echo "-t --hosts. Default: 'nc1 nc2 nc3 sc1 sc2 sc3 ec1 ec2 ec3'."
-    echo ""
+    echo "Usage: alish COMMAND [OPTIONS]"
+    echo "remote control over purchased aliyun hosts in a batch way."
+    echo "Commands:"
+    echo -e "\texec\texecute commands on aliyun hosts"
+    echo -e "\trm\tstop and remove docker cassandra containers on aliyun hosts"
+    echo -e "\t-h --help\t help"
+    echo -e "\tstart\t(re)start docker cassandra containers on aliyun hosts"
+    echo "Options for exec:"
+    echo -e "\t-l --local\tlocal command to execute"
+    echo -e "\t-r --remote\tremote command to execute, take the output of local command as input if it exists"
+    echo -e "\t-t --hosts\tremote hosts, default are 'nc1 nc2 nc3 sc1 sc2 sc3 ec1 ec2 ec3'"
+    echo -e "\n"
+    echo "Options for rm and start:"
+    echo -e "\t-h=\taliyun hosts, default are 'nc1 nc2 nc3 sc1 sc2 sc3 ec1 ec2 ec3' (the only option for rm)"
+    echo -e "\t-s=\tseeds of the cassandra cluster, default are 'nc1 sc1 ec1'"
+    echo -e "\t-p=\tport of docker container to open, default 7000"
+    echo -e "\t-t=\ttag of docker image, default 'latest'"
 }
-python alish-parseargs.py "$@"
 
-declare -i LINE
-LINE=1
-while IFS='' read -r line || [[ -n "$line" ]]; do
-    echo $line
-    if [ "$line" != "\n" ]; then
-        if [ $LINE -eq 1 ]; then
-            lcmd=$line
-        elif [ $LINE -eq 2 ]; then
-            rcmd=$line
-        elif [ $LINE -eq 3 ]; then
-            hosts=$line
-        fi
-    fi
-    LINE=$LINE+1
-done < tmpfile
-rm tmpfile
+if [ "$#" -lt 1 ]; then
+    usage
+fi
 
-# parse the arguments: -h, -l, -r, -t
-#while [ "$1" != "" ]; do
-    #PARAM=`echo $1 | awk -F= '{print $1}'`
-    #VALUE=`echo $1 | awk -F= '{print $2}'`
-    #case $PARAM in
+case $1 in
+    -h | --help)
+        usage
+        ;;
+
+    start | rm)
+        alic-scripts/aliccd.sh "$@"
+        ;;
+
+    "exec")
+        python alish-parseargs.py "${@:2}"
+
+        declare -i LINE
+        LINE=1
+        while IFS='' read -r line || [[ -n "$line" ]]; do
+            echo $line
+            if [ -n "$line" ]; then
+                if [ $LINE -eq 1 ]; then
+                    lcmd=$line
+                elif [ $LINE -eq 2 ]; then
+                    rcmd=$line
+                elif [ $LINE -eq 3 ]; then
+                    hosts=$line
+                fi
+            fi
+            LINE=$LINE+1
+        done < tmpfile
+        rm tmpfile
+
+        # parse the arguments: -h, -l, -r, -t
+        #while [ "$1" != "" ]; do
+        #PARAM=`echo $1 | awk -F= '{print $1}'`
+        #VALUE=`echo $1 | awk -F= '{print $2}'`
+        #case $PARAM in
         #-h | --help)
-            #usage
-            #exit
-            #;;
-        #-l | --local-cmd)
-            #lcmd=$VALUE
-            #;;
-		#-r | --remote-cmd)
-            #rcmd=$VALUE
-            #;;
-		#-t | --hosts)
-			#hosts=$VALUE
-			#;;
-        #*)
-            #echo "ERROR: unknown parameter \"$PARAM\""
-            #usage
-            #exit 1
-            #;;
-    #esac
-    #shift
-#done
+        #usage
+        #exit
+        #;;
+    #-l | --local-cmd)
+        #lcmd=$VALUE
+        #;;
+    #-r | --remote-cmd)
+        #rcmd=$VALUE
+        #;;
+    #-t | --hosts)
+        #hosts=$VALUE
+        #;;
+    #*)
+        #echo "ERROR: unknown parameter \"$PARAM\""
+        #usage
+        #exit 1
+        #;;
+        #esac
+        #shift
+        #done
 
-#echo "local cmd is '$lcmd'.";
-#echo "remote cmd is '$rcmd'.";
-#echo "hosts is '$hosts'."
+        echo "local cmd is '$lcmd'.";
+        echo "remote cmd is '$rcmd'.";
+        echo "hosts is '$hosts'."
 
-#echo ""
-#echo "This script executes '$lcmd' at the local host, and then executes '$rcmd' at remote hosts '$hosts' with the output of '$lcmd' as input."
-#echo ""
+        #echo ""
+        #echo "This script executes '$lcmd' at the local host, and then executes '$rcmd' at remote hosts '$hosts' with the output of '$lcmd' as input."
+        #echo ""
 
-for host in $hosts; do
-    echo "$host:"
-    $lcmd | ssh -o StrictHostKeyChecking=no root@$host $rcmd &
-done
+        for host in $hosts; do
+            $lcmd | ssh -o StrictHostKeyChecking=no root@$host $rcmd &
+        done
+        ;;
+    *)
+        echo "ERROR: unknown command \""$1"\""
+esac

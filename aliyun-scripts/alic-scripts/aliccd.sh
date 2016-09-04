@@ -1,4 +1,5 @@
 #!/bin/bash
+shopt -s extglob
 #===============================================================================
 #
 #          FILE: aliccd.sh
@@ -24,22 +25,22 @@ function usage() {
     echo ""
     echo "This script launches a Cassandra of 'tag' cluster on 'hosts' with 'seeds' as seeds."
     echo ""
-	echo "WARNING: force removal ... (to do)"
+    echo "WARNING: force removal ... (to do)"
     echo "--help: print usage."
     echo "-h --hosts. Default: 'nc1 nc2 nc3 sc1 sc2 sc3 ec1 ec2 ec3'."
-	echo "-s --seeds. Default: 'nc1 sc1 ec1'."
-	echo "-p --ports. Default: '7000'."
-	echo "-t --tag. Default: 'latest'"
-	echo "-n --name. Default: ''"
+    echo "-s --seeds. Default: 'nc1 sc1 ec1'."
+    echo "-p --ports. Default: '7000'."
+    echo "-t --tag. Default: 'latest'"
+    echo "-n --name. Default: ''"
     echo ""
 }
 function naming() {
-	local h="$1"
-	echo 'cassandra'-"${h:0:2}"-'cluster'-"$h"
+    local h="$1"
+    echo 'cassandra'-"${h:0:2}"-'cluster'-"$h"
 }
 
 function getIP() {
-	local h="$1"
+    local h="$1"
     echo $(getent hosts $h | awk '{print $1}')
 }
 
@@ -49,27 +50,23 @@ port="7000"  # port for gossip
 tag="latest"  # cassandra:latest
 
 # parse the arguments: --help, -h (--hosts), -s (--seeds), -t (--tag)
-echo $#
+option="$1"
+shift
+
 if [ 0 -ne $# ]; then
     until  [ -z "$1" ]
     do
         PARAM=`echo $1 | awk -F= '{print $1}'`
         VALUE=`echo $1 | awk -F= '{print $2}'`
 
-        echo $PARAM
 
         VALUE_ARR=()
         for item in "$VALUE"; do
             VALUE_ARR+=("$item")
         done
 
-        echo "while"
 
         case $PARAM in
-            --help)
-                usage
-                exit
-                ;;
             -h | --hosts)
                 hosts=( ${VALUE_ARR[@]} )
                 echo ${hosts[@]}
@@ -84,8 +81,7 @@ if [ 0 -ne $# ]; then
                 tag=( ${VALUE_ARR[@]} )
                 ;;
             *)
-                echo "ERROR: unknown parameter \"$PARAM\""
-                usage
+                echo "ERROR: unknown option \"$PARAM\""
                 exit 1
                 ;;
         esac
@@ -93,33 +89,51 @@ if [ 0 -ne $# ]; then
     done
 fi
 
-echo ${seeds[@]}
-echo ${hosts[@]}
-
-# first starting the seeds in 'seeds'
-
+# comma-delimited seed ip list to be set in CASSANDRA_SEEDS option of seed hosts.
+seeds_ip=()
 for seed in ${seeds[@]}; do
-    name=$(naming $seed)
-    ip=$(getIP $seed)
-
-	run_cmd="docker run --name $name -d -e CASSANDRA_BROADCAST_ADDRESS=$ip -p $port:$port cassandra:$tag"
-	rm_cmd="docker rm -f $name"
-    alish -r "$run_cmd || ($rm_cmd && $run_cmd)" -t "$ip"
+    seeds_ip+=($(getIP $seed))
 done
+seeds_ip="${seeds_ip[*]}"
+seeds_ip="${seeds_ip%% }"
+comma_seeds_ip="${seeds_ip// /,}"
 
-# then starting the others in 'hosts' (excluding those also in 'seeds')
+
+if [ "$option" = "rm" ] || [ "$option" = "start" ]; then
+    for host in ${hosts[@]}; do
 
 
-for host in ${hosts[@]}; do
-    name=$(naming $host)
-    ip=$(getIP $host)
+        name=$(naming $host)
 
-	if [ "${seeds/$host}" = "$seeds" ]; then
-		# choose a random seed
-        seed_ip=$(getIP ${seeds[$RANDOM % ${#seeds[@]}] })
-		run_cmd="docker run --name $name -d -e CASSANDRA_BROADCAST_ADDRESS=$ip -p $port:$port -e CASSANDRA_SEEDS=$seed_ip cassandra:$tag"
-		rm_cmd="docker rm -f $name"
-		alish -r "$run_cmd || ($rm_cmd && $run_cmd)" -t "$ip"
-	fi
-done
 
+        rm_cmd="docker rm -f $name"
+        alish "exec" -r "$rm_cmd" -t "$host"
+    done
+fi
+
+if [ "$option" = "start" ]; then
+    # first starting the seeds in 'seeds'
+    for ((i=0; i<${#seeds[@]}; i++)); do
+        ip=$(getIP "${seeds[i]}")
+        name=$(naming "${seeds[i]}")
+        run_cmd="docker run --name $name -d -e CASSANDRA_BROADCAST_ADDRESS=$ip -e CASSANDRA_CLUSTER_NAME=DisAlg -e CASSANDRA_SEEDS=$comma_seeds_ip -e CASSANDRA_DC="${name:0:2}" -p $port:$port cassandra:$tag"
+        alish "exec" -r "$run_cmd" -t "${seeds[i]}"
+    done
+
+    # then starting the others in 'hosts' (excluding those also in 'seeds')
+    sleep 30
+
+    for host in ${hosts[@]}; do
+        name=$(naming $host)
+        ip=$(getIP $host)
+
+        if [[ "${seeds[*]}" != *"$host"* ]]; then
+            # choose a random seed
+
+            seed_ip=$(getIP ${seeds[$RANDOM % ${#seeds[@]}] })
+            run_cmd="docker run --name $name -d -e CASSANDRA_BROADCAST_ADDRESS=$ip -p $port:$port -e CASSANDRA_SEEDS=$comma_seeds_ip -e CASSANDRA_DC="${name:0:2}" -e CASSANDRA_CLUSTER_NAME=DisAlg  cassandra:$tag"
+            alish "exec" -r "$run_cmd" -t "$host"
+            sleep 60
+        fi
+    done
+fi
