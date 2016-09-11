@@ -116,7 +116,7 @@ if [ "$option" = "start" ]; then
     for ((i=0; i<${#seeds[@]}; i++)); do
         ip=$(getIP "${seeds[i]}")
         name=$(naming "${seeds[i]}")
-        run_cmd="docker run --name $name -d -e CASSANDRA_BROADCAST_ADDRESS=$ip -e CASSANDRA_CLUSTER_NAME=DisAlg -e CASSANDRA_SEEDS=$comma_seeds_ip -e CASSANDRA_DC="${name:0:2}" -p $port:$port cassandra:$tag"
+        run_cmd="docker run --name $name -d -e CASSANDRA_BROADCAST_ADDRESS=$ip -e CASSANDRA_CLUSTER_NAME=DisAlg -e CASSANDRA_SEEDS=$comma_seeds_ip -e CASSANDRA_DC="${seeds[i]:0:2}" -e CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch -p $port:$port cassandra:$tag"
         alish "exec" -r "$run_cmd" -t "${seeds[i]}"
     done
 
@@ -131,7 +131,7 @@ if [ "$option" = "start" ]; then
             # choose a random seed
 
             seed_ip=$(getIP ${seeds[$RANDOM % ${#seeds[@]}] })
-            run_cmd="docker run --name $name -d -e CASSANDRA_BROADCAST_ADDRESS=$ip -p $port:$port -e CASSANDRA_SEEDS=$comma_seeds_ip -e CASSANDRA_DC="${name:0:2}" -e CASSANDRA_CLUSTER_NAME=DisAlg  cassandra:$tag"
+            run_cmd="docker run --name $name -d -e CASSANDRA_BROADCAST_ADDRESS=$ip -p $port:$port -e CASSANDRA_SEEDS=$comma_seeds_ip -e CASSANDRA_DC="${host:0:2}" -e CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch -e CASSANDRA_CLUSTER_NAME=DisAlg  cassandra:$tag"
             alish "exec" -r "$run_cmd" -t "$host"
             sleep 60
         fi
